@@ -470,9 +470,9 @@ function ProjectsSection() {
 
 const SKILLS = {
   Frontend: ["React", "TypeScript", "Tailwind CSS", "HTML5", "CSS3", "JavaScript"],
-  Backend: ["Node.js", "PHP", "Python (básico)", "REST APIs"],
-  "Bases de datos": ["MySQL", "MongoDB", "PostgreSQL (básico)"],
-  Herramientas: ["Git", "GitHub", "VS Code", "Figma", "Linux"],
+  Backend: ["Node.js", "PHP", "Python", "REST APIs"],
+  "Bases de datos": ["MySQL", "MongoDB", "PostgreSQL"],
+  Varias: ["Git", "GitHub", "VS Code", "Ingles C1 (avanzado)", "Linux"],
 };
 
 function SkillsSection() {
@@ -532,9 +532,10 @@ function ContactSection() {
             >
               {[
                 { label: "LINKEDIN", value: "marlon-nilo-a29b05305", href: "https://www.linkedin.com/in/marlon-nilo-a29b05305/" },
+                { label: "GITHUB", value: "Sharpor1", href: "https://github.com/Sharpor1" },
                 { label: "EMAIL", value: "marlonnilodev@gmail.com", href: "mailto:marlonnilodev@gmail.com" },
+                { label: "WHATSAPP", value: "+56 9 3199 9176", href: "https://wa.me/56931999176" },
                 { label: "UBICACION", value: "Chile", href: null },
-                { label: "DISPONIBLE_PARA", value: "Proyectos freelance", href: null },
               ].map((item) => (
                 <div key={item.label} className="flex flex-col gap-0.5">
                   <span className="text-[#00aa2a] text-xs">{item.label}</span>
