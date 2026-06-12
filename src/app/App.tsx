@@ -98,8 +98,8 @@ function NavBar({ active, onNav }: { active: string; onNav: (s: string) => void 
 function HeroSection() {
   const line1 = useTyping("> Inicializando sistema...", 25, 0);
   const line2 = useTyping("> Cargando perfil: MARLON_NILO", 25, 500);
-  const line3 = useTyping("> Estado: FREELANCER_ACTIVO", 25, 900);
-  const line4 = useTyping("> Última ubicación: INACAP, Chile", 25, 1300);
+  const line3 = useTyping("> Estado: ACTIVO", 25, 900);
+  const line4 = useTyping("> Última ubicación: Chile", 25, 1300);
 
   return (
     <section
@@ -111,7 +111,7 @@ function HeroSection() {
         className="pointer-events-none fixed inset-0 z-0"
         style={{
           backgroundImage:
-            "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px)",
+            "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px)",
         }}
       />
 
@@ -157,14 +157,18 @@ function HeroSection() {
               className="text-[#00ff41]"
               style={{ fontFamily: "'Share Tech Mono', monospace" }}
             >
-              <div className="border border-[#00ff41] w-full aspect-square max-w-[180px] mx-auto mb-4 flex items-center justify-center overflow-hidden bg-black"
+              <div className="border border-[#00ff41] w-full aspect-square max-w-[180px] mx-auto mb-4 flex items-center justify-center overflow-hidden bg-black relative"
                 style={{ boxShadow: "0 0 12px #00ff4155" }}>
                 <img 
                   src="/assets/profile.jpg" 
                   alt="Marlon Nilo"
                   className="w-full h-full object-cover"
+                />
+                <div
+                  className="absolute inset-0 pointer-events-none"
                   style={{
-                    filter: "saturate(0.3) contrast(1.2) brightness(0.95)"
+                    backgroundImage:
+                      "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px)",
                   }}
                 />
               </div>
