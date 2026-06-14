@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from "react";
-import { motion } from "motion/react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { motion, AnimatePresence } from "motion/react";
 
 const BLINK_CHAR = "█";
 
@@ -51,61 +51,189 @@ function TerminalBox({
       style={{ boxShadow: "0 0 8px #00ff4133, inset 0 0 8px #00ff4108" }}
     >
       {title && (
-        <div className="border-b border-[#00ff41] px-4 py-2 text-[#00ff41] tracking-widest uppercase text-sm">
+        <div className="border-b border-[#00ff41] px-3 md:px-4 py-2 text-[#00ff41] tracking-widest uppercase text-xs md:text-sm">
           {title}
         </div>
       )}
-      <div className="p-6">{children}</div>
+      <div className="p-4 md:p-6">{children}</div>
     </div>
   );
 }
 
 function NavBar({ active, onNav }: { active: string; onNav: (s: string) => void }) {
+  const [open, setOpen] = useState(false);
   const sections = ["INICIO", "EXPERIENCIA", "PROYECTOS", "HABILIDADES", "CONTACTO"];
+
+  function handleNav(section: string) {
+    onNav(section);
+    setOpen(false);
+  }
+
+  const navBtnClass = (s: string) =>
+    `tracking-widest text-xs transition-all duration-200 min-h-[44px] px-4 py-2 flex items-center justify-center ${
+      active === s
+        ? "text-black bg-[#00ff41]"
+        : "text-[#00ff41] hover:text-black hover:bg-[#00ff41]"
+    }`;
+
   return (
     <nav
-      className="fixed top-0 left-0 right-0 z-50 border-b border-[#00ff41] bg-black flex items-center px-6 py-3 gap-8"
+      className="fixed top-0 left-0 right-0 z-50 border-b border-[#00ff41] bg-black"
       style={{ boxShadow: "0 2px 12px #00ff4133" }}
     >
-      <span
-        className="text-[#00ff41] tracking-widest cursor-pointer"
-        style={{ fontFamily: "'VT323', monospace", fontSize: "1.4rem" }}
-        onClick={() => onNav("INICIO")}
-      >
-        $MARLON_NILO
-      </span>
-      <div className="flex-1" />
-      <div className="flex gap-6 flex-wrap">
-        {sections.map((s) => (
-          <button
-            key={s}
-            onClick={() => onNav(s)}
-            className={`tracking-widest text-xs transition-all duration-200 ${
-              active === s
-                ? "text-black bg-[#00ff41] px-2 py-0.5"
-                : "text-[#00ff41] hover:text-black hover:bg-[#00ff41] px-2 py-0.5"
-            }`}
-            style={{ fontFamily: "'Share Tech Mono', monospace" }}
-          >
-            {s}
-          </button>
-        ))}
+      <div className="flex items-center px-4 md:px-6 py-3 gap-4">
+        <span
+          className="text-[#00ff41] tracking-widest cursor-pointer shrink-0"
+          style={{ fontFamily: "'VT323', monospace", fontSize: "clamp(1rem, 4vw, 1.4rem)" }}
+          onClick={() => handleNav("INICIO")}
+        >
+          $MARLON_NILO
+        </span>
+        <div className="flex-1" />
+        <div className="hidden md:flex gap-2 items-center">
+          {sections.map((s) => (
+            <button
+              key={s}
+              onClick={() => handleNav(s)}
+              className={navBtnClass(s)}
+              style={{ fontFamily: "'Share Tech Mono', monospace" }}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+        <button
+          type="button"
+          className="md:hidden text-[#00ff41] px-2 py-1 border border-[#00ff41] tracking-widest text-xs"
+          onClick={() => setOpen((v) => !v)}
+          aria-label={open ? "Cerrar menú" : "Abrir menú"}
+          aria-expanded={open}
+          style={{ fontFamily: "'Share Tech Mono', monospace" }}
+        >
+          {open ? "[ X ]" : "[ ≡ ]"}
+        </button>
       </div>
+      {open && (
+        <div
+          className="md:hidden border-t border-[#00ff41] bg-black px-4 py-2 flex flex-col"
+          style={{ fontFamily: "'Share Tech Mono', monospace" }}
+        >
+          {sections.map((s) => (
+            <button
+              key={s}
+              onClick={() => handleNav(s)}
+              className={`${navBtnClass(s)} text-left py-2.5 border-b border-[#00ff4133] last:border-b-0`}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      )}
     </nav>
   );
 }
 
-function HeroSection() {
+function useIsMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, [breakpoint]);
+  return isMobile;
+}
+
+function SystemBootLog({ onComplete }: { onComplete?: () => void }) {
   const line1 = useTyping("> Inicializando sistema...", 25, 0);
   const line2 = useTyping("> Cargando perfil: MARLON_NILO", 25, 500);
   const line3 = useTyping("> Estado: ACTIVO", 25, 900);
   const line4 = useTyping("> Última ubicación: Chile", 25, 1300);
 
+  useEffect(() => {
+    if (!line4.done || !onComplete) return;
+    const timer = setTimeout(onComplete, 1200);
+    return () => clearTimeout(timer);
+  }, [line4.done, onComplete]);
+
+  return (
+    <div
+      className="text-[#00ff41] text-sm leading-7"
+      style={{ fontFamily: "'Share Tech Mono', monospace" }}
+    >
+      <div>{line1.displayed}{!line1.done && <Cursor />}</div>
+      {line2.displayed && (
+        <div>{line2.displayed}{!line2.done && <Cursor />}</div>
+      )}
+      {line3.displayed && (
+        <div>{line3.displayed}{!line3.done && <Cursor />}</div>
+      )}
+      {line4.displayed && (
+        <div>{line4.displayed}{!line4.done && <Cursor />}</div>
+      )}
+      {line4.done && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+        >
+          <div className="text-[#00aa2a]">{">"} Sistema listo.</div>
+        </motion.div>
+      )}
+    </div>
+  );
+}
+
+function MobileBootSplash({ onComplete }: { onComplete: () => void }) {
+  const handleComplete = useCallback(() => onComplete(), [onComplete]);
+
+  return (
+    <motion.div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black px-4"
+      initial={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundImage:
+            "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px)",
+        }}
+      />
+      <div className="relative w-full max-w-lg">
+        <TerminalBox title="SYSTEM_BOOT — v2.0.26">
+          <SystemBootLog onComplete={handleComplete} />
+        </TerminalBox>
+      </div>
+    </motion.div>
+  );
+}
+
+function HeroSection() {
+  const isMobile = useIsMobile();
+  const [mobileSplashDone, setMobileSplashDone] = useState(false);
+  const [showSplash, setShowSplash] = useState(false);
+
+  useEffect(() => {
+    if (isMobile) setShowSplash(true);
+    else setShowSplash(false);
+  }, [isMobile]);
+
+  const showHeroContent = !isMobile || mobileSplashDone;
+
   return (
     <section
       id="INICIO"
-      className="min-h-screen flex flex-col items-center justify-center px-6 pt-24 pb-24"
+      className="min-h-screen flex flex-col items-center justify-center px-4 md:px-6 pt-20 md:pt-24 pb-16 md:pb-24"
     >
+      <AnimatePresence onExitComplete={() => setMobileSplashDone(true)}>
+        {showSplash && isMobile && (
+          <MobileBootSplash key="boot-splash" onComplete={() => setShowSplash(false)} />
+        )}
+      </AnimatePresence>
+
       {/* Scanlines overlay */}
       <div
         className="pointer-events-none fixed inset-0 z-0"
@@ -116,41 +244,18 @@ function HeroSection() {
       />
 
       <div className="relative z-10 w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Boot log */}
-        <div className="md:col-span-2">
+        {/* Boot log — solo desktop */}
+        <div className="hidden md:block md:col-span-2">
           <TerminalBox title="SYSTEM_BOOT — v2.0.26">
-            <div
-              className="text-[#00ff41] text-sm leading-7"
-              style={{ fontFamily: "'Share Tech Mono', monospace" }}
-            >
-              <div>{line1.displayed}{!line1.done && <Cursor />}</div>
-              {line2.displayed && (
-                <div>{line2.displayed}{!line2.done && <Cursor />}</div>
-              )}
-              {line3.displayed && (
-                <div>{line3.displayed}{!line3.done && <Cursor />}</div>
-              )}
-              {line4.displayed && (
-                <div>{line4.displayed}{!line4.done && <Cursor />}</div>
-              )}
-              {line4.done && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                >
-                  <div className="text-[#00aa2a]">{">"} Sistema listo.</div>
-                </motion.div>
-              )}
-            </div>
+            <SystemBootLog />
           </TerminalBox>
         </div>
 
         {/* Programador card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
+          animate={showHeroContent ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          transition={{ delay: isMobile ? 0.2 : 0.8 }}
         >
           <TerminalBox title="FICHA_PROGRAMADOR // ID: MN-2001">
             <div
@@ -187,8 +292,8 @@ function HeroSection() {
         {/* Bio + CTAs */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.2 }}
+          animate={showHeroContent ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          transition={{ delay: isMobile ? 0.4 : 1.2 }}
           className="flex flex-col gap-4"
         >
           <TerminalBox title="DESCRIPCION">
@@ -264,14 +369,14 @@ function AboutSection() {
   const [selected, setSelected] = useState<typeof timeline[0] | null>(null);
 
   return (
-    <section id="EXPERIENCIA" className="py-28 px-6">
+    <section id="EXPERIENCIA" className="py-16 md:py-28 px-4 md:px-6">
       <div className="max-w-4xl mx-auto">
         <SectionHeader cmd="cat historial_actividad.log" />
         <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-0 border border-[#00ff41] bg-[#050f05]"
           style={{ boxShadow: "0 0 8px #00ff4133, inset 0 0 8px #00ff4108" }}>
           
           {/* Timeline List */}
-          <div className="md:col-span-1 border-r border-[#00ff41]">
+          <div className="md:col-span-1 border-b md:border-b-0 md:border-r border-[#00ff41]">
             <div
               className="border-b border-[#00ff41] px-4 py-2 text-[#00aa2a] text-xs tracking-widest"
               style={{ fontFamily: "'Share Tech Mono', monospace" }}
@@ -297,7 +402,7 @@ function AboutSection() {
 
           {/* Detail Panel */}
           <div
-            className="md:col-span-2 p-6 min-h-[420px]"
+            className="md:col-span-2 p-4 md:p-6 min-h-[200px] md:min-h-[420px]"
             style={{ fontFamily: "'Share Tech Mono', monospace" }}
           >
             {selected ? (
@@ -378,13 +483,13 @@ function ProjectsSection() {
   const [selected, setSelected] = useState<(typeof PROJECTS)[0] | null>(null);
 
   return (
-    <section id="PROYECTOS" className="py-28 px-6">
+    <section id="PROYECTOS" className="py-16 md:py-28 px-4 md:px-6">
       <div className="max-w-4xl mx-auto">
         <SectionHeader cmd="ls -la proyectos/" />
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-0 border border-[#00ff41] bg-[#050f05]"
           style={{ boxShadow: "0 0 8px #00ff4133, inset 0 0 8px #00ff4108" }}>
           {/* List */}
-          <div className="border-r border-[#00ff41]">
+          <div className="border-b md:border-b-0 md:border-r border-[#00ff41]">
             <div
               className="border-b border-[#00ff41] px-4 py-2 text-[#00aa2a] text-xs tracking-widest"
               style={{ fontFamily: "'Share Tech Mono', monospace" }}
@@ -410,7 +515,7 @@ function ProjectsSection() {
 
           {/* Detail */}
           <div
-            className="p-6 min-h-[420px]"
+            className="p-4 md:p-6 min-h-[200px] md:min-h-[420px]"
             style={{ fontFamily: "'Share Tech Mono', monospace" }}
           >
             {selected ? (
@@ -421,7 +526,7 @@ function ProjectsSection() {
                 transition={{ duration: 0.2 }}
                 className="text-[#00cc33] text-sm space-y-3"
               >
-                <div className="text-[#00ff41] tracking-widest">{selected.name}</div>
+                <div className="text-[#00ff41] tracking-widest break-words">{selected.name}</div>
                 <div className="text-xs text-[#00aa2a]">ID: {selected.id} | AÑO: {selected.year}</div>
                 {selected.contribution && (
                   <div className="text-xs text-[#00aa2a]">CONTRIBUCION: {selected.contribution}</div>
@@ -481,23 +586,34 @@ const SKILLS = {
 
 function SkillsSection() {
   return (
-    <section id="HABILIDADES" className="py-28 px-6">
+    <section id="HABILIDADES" className="py-16 md:py-28 px-4 md:px-6">
       <div className="max-w-4xl mx-auto">
         <SectionHeader cmd="cat habilidades.json" />
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-          {Object.entries(SKILLS).map(([cat, items]) => (
-            <TerminalBox key={cat} title={cat.toUpperCase().replace(/ /g, "_")}>
-              <div style={{ fontFamily: "'Share Tech Mono', monospace" }}>
-                {items.map((skill, i) => (
-                  <div key={skill} className="flex items-center gap-2 mb-2">
-                    <span className="text-[#00aa2a] text-xs">{String(i).padStart(2, "0")}</span>
-                    <div className="flex-1 h-px border-t border-[#00ff4133]" />
-                    <span className="text-[#00ff41] text-xs">{skill}</span>
-                  </div>
-                ))}
-              </div>
-            </TerminalBox>
-          ))}
+        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+          {Object.entries(SKILLS).map(([cat, items]) => {
+            const cols = Math.ceil(items.length / 2);
+            return (
+              <TerminalBox key={cat} title={cat.toUpperCase().replace(/ /g, "_")}>
+                <div
+                  className="grid gap-1.5"
+                  style={{
+                    fontFamily: "'Share Tech Mono', monospace",
+                    gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+                  }}
+                >
+                  {items.map((skill) => (
+                    <div
+                      key={skill}
+                      className="aspect-square border border-[#00ff41] bg-[#001a00] flex items-center justify-center p-1.5 text-center text-[10px] leading-tight text-[#00ff41]"
+                      style={{ boxShadow: "0 0 4px #00ff4122, inset 0 0 4px #00ff4108" }}
+                    >
+                      {skill}
+                    </div>
+                  ))}
+                </div>
+              </TerminalBox>
+            );
+          })}
         </div>
       </div>
     </section>
@@ -525,7 +641,7 @@ function ContactSection() {
   }
 
   return (
-    <section id="CONTACTO" className="py-28 px-6 pb-40">
+    <section id="CONTACTO" className="py-16 md:py-28 px-4 md:px-6 pb-28 md:pb-40">
       <div className="max-w-4xl mx-auto">
         <SectionHeader cmd="ssh marlonnilodev@gmail.com" />
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -541,19 +657,20 @@ function ContactSection() {
                 { label: "WHATSAPP", value: "+56 9 3199 9176", href: "https://wa.me/56931999176" },
                 { label: "UBICACION", value: "Chile", href: null },
               ].map((item) => (
-                <div key={item.label} className="flex flex-col gap-0.5">
+                <div key={item.label} className="flex flex-col gap-1">
                   <span className="text-[#00aa2a] text-xs">{item.label}</span>
                   {item.href && item.href !== "#" ? (
                     <a
                       href={item.href}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-[#00ff41] hover:underline"
+                      className="inline-block w-fit text-[#00ff41] text-sm px-2.5 py-1.5 border border-[#00ff4166] bg-[#001a00] hover:bg-[#00ff41] hover:text-black hover:border-[#00ff41] transition-all duration-200"
+                      style={{ boxShadow: "0 0 4px #00ff4122" }}
                     >
                       {item.value}
                     </a>
                   ) : (
-                    <span className="text-[#00ff41]">{item.value}</span>
+                    <span className="text-[#00ff41] text-sm">{item.value}</span>
                   )}
                 </div>
               ))}
@@ -638,11 +755,11 @@ function ContactSection() {
 function SectionHeader({ cmd }: { cmd: string }) {
   return (
     <div style={{ fontFamily: "'Share Tech Mono', monospace" }}>
-      <div className="flex items-center gap-2 text-[#00aa2a] text-sm mb-3">
-        <span className="text-[#00ff41]">marlon@portfolio</span>
-        <span>:</span>
-        <span className="text-[#00cc33]">~</span>
-        <span>$</span>
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[#00aa2a] text-xs md:text-sm mb-3 break-all">
+        <span className="text-[#00ff41] shrink-0">marlon@portfolio</span>
+        <span className="shrink-0">:</span>
+        <span className="text-[#00cc33] shrink-0">~</span>
+        <span className="shrink-0">$</span>
         <span className="text-[#00ff41]">{cmd}</span>
       </div>
       <div className="w-full border-t border-[#00ff4155] mb-6" />
@@ -653,11 +770,11 @@ function SectionHeader({ cmd }: { cmd: string }) {
 function SectionDivider({ label }: { label: string }) {
   return (
     <div
-      className="w-full max-w-4xl mx-auto flex items-center gap-4 py-2"
+      className="w-full max-w-4xl mx-auto flex items-center gap-2 md:gap-4 py-2 px-4 md:px-6"
       style={{ fontFamily: "'Share Tech Mono', monospace" }}
     >
       <div className="flex-1 border-t-2 border-[#00ff41]" style={{ boxShadow: "0 0 6px #00ff4166" }} />
-      <span className="text-[#00ff41] text-xs tracking-[0.3em] px-2 border border-[#00ff41] py-1"
+      <span className="text-[#00ff41] text-[10px] md:text-xs tracking-[0.2em] md:tracking-[0.3em] px-2 border border-[#00ff41] py-1 shrink-0"
         style={{ boxShadow: "0 0 8px #00ff4144" }}>
         // {label} //
       </span>
