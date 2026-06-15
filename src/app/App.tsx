@@ -586,34 +586,58 @@ const SKILLS = {
 
 function SkillsSection() {
   return (
-    <section id="HABILIDADES" className="py-16 md:py-28 px-4 md:px-6">
+    <section
+      id="HABILIDADES"
+      className="py-16 md:py-28 px-4 md:px-6"
+    >
       <div className="max-w-4xl mx-auto">
         <SectionHeader cmd="cat habilidades.json" />
+
         <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
-          {Object.entries(SKILLS).map(([cat, items]) => {
-            const cols = Math.ceil(items.length / 2);
-            return (
-              <TerminalBox key={cat} title={cat.toUpperCase().replace(/ /g, "_")}>
-                <div
-                  className="grid gap-1.5"
-                  style={{
-                    fontFamily: "'Share Tech Mono', monospace",
-                    gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
-                  }}
-                >
-                  {items.map((skill) => (
-                    <div
-                      key={skill}
-                      className="aspect-square border border-[#00ff41] bg-[#001a00] flex items-center justify-center p-1.5 text-center text-[10px] leading-tight text-[#00ff41]"
-                      style={{ boxShadow: "0 0 4px #00ff4122, inset 0 0 4px #00ff4108" }}
-                    >
-                      {skill}
-                    </div>
-                  ))}
-                </div>
-              </TerminalBox>
-            );
-          })}
+          {Object.entries(SKILLS).map(([cat, items]) => (
+            <TerminalBox
+              key={cat}
+              title={cat.toUpperCase().replace(/ /g, "_")}
+            >
+              {/* MOBILE */}
+              <div
+                className="md:hidden text-[#00cc33] text-sm leading-7"
+                style={{
+                  fontFamily: "'Share Tech Mono', monospace",
+                }}
+              >
+                {items.map((skill, index) => (
+                  <span key={skill}>
+                    {skill}
+
+                    {index !== items.length - 1 && (
+                      <span className="text-[#00aa2a]">
+                        {" // "}
+                      </span>
+                    )}
+                  </span>
+                ))}
+              </div>
+
+              {/* DESKTOP */}
+              <div className="hidden md:flex flex-wrap gap-2">
+                {items.map((skill) => (
+                  <span
+                    key={skill}
+                    className="border border-[#00ff41] bg-[#001a00] text-[#00ff41] px-3 py-1 text-sm"
+                    style={{
+                      fontFamily:
+                        "'Share Tech Mono', monospace",
+                      boxShadow:
+                        "0 0 4px #00ff4122",
+                    }}
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </TerminalBox>
+          ))}
         </div>
       </div>
     </section>
