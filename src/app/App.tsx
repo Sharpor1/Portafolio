@@ -301,7 +301,7 @@ function HeroSection() {
               className="text-[#00cc33] text-sm leading-6"
               style={{ fontFamily: "'Share Tech Mono', monospace" }}
             >
-              Desarrollador en formación, estudiante de Ingeniería Informática en INACAP. Con experiencia previa en atención al cliente (6 años), ahora enfocado en construir soluciones web modernas y funcionales. Siempre aprendiendo, siempre ejecutando.
+              Desarrollador con 6 años experiencia previa en atención al cliente, ahora enfocado en construir soluciones web modernas y funcionales. Siempre aprendiendo, siempre ejecutando.
             </p>
           </TerminalBox>
           <div className="grid grid-cols-1 gap-3">
@@ -339,16 +339,16 @@ function AboutSection() {
   const timeline = [
     { 
       id: "2024_001",
-      year: "2024", 
-      title: "Ingreso a INACAP",
+      year: "2025", 
+      title: "Egreso de INACAP",
       event: "Ingreso a INACAP — carrera Ingeniería en Informática", 
       type: "edu",
-      details: "Inicio de la carrera de Ingeniería en Informática en INACAP. Aprendizaje de fundamentos de programación, estructuras de datos y desarrollo web moderno.",
+      details: "Egreso de la carrera de Ingeniería en Informática en INACAP. Aprendizaje de fundamentos de programación, estructuras de datos y desarrollo web moderno.",
       skills: ["Programación", "Estructuras de datos", "HTML/CSS", "JavaScript", "SQL"]
     },
     { 
       id: "2026_001",
-      year: "2026", 
+      year: "2024", 
       title: "Freelancer Independiente",
       event: "Inicio como Freelancer Independiente", 
       type: "work",
